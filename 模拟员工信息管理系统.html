@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>table练习</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<style type="text/css">
+	body{
+		font-family: "微软雅黑"
+	}
+	h2, h4{ text-align: center; }
+	div#box1, div#box2 {
+		text-align:center;
+	}
+	hr{
+		margin: 20px 0;
+	}
+	table{ 
+		margin: 0 auto; 
+		width: 70%;
+		text-align: center;
+		border-collapse:collapse;
+	}
+	td, th{padding: 7px; width:20%;}
+	th{
+		background-color: #DCDCDC;
+	}
+</style>
+
+<!--引入jquery的js库-->
+<script src="../js/jquery-1.4.2.js"></script>
+<script type="text/javascript">
+	/* --- 添加一个新员工 --- */
+	function addEmp(){
+		//1.获取新员工的信息
+		var id = $("#box1").find("input[name='id']").val().trim();
+		var name = $("#box1").find("input[name='name']").val().trim();
+		var email = $("#box1").find("input[name='email']").val().trim();
+		var salary = $("#box1").find("input[name='salary']").val().trim();
+
+		//2.检查员工信息是否符合格式(信息不能为空)
+		if( id == "" || name == "" || email == "" || salary == ""){
+			alert("员工信息不能为空!!!");
+			return;
+		}
+
+		//3.检查ID是否已存在
+		/* 获取当前所有员工的id, 循环遍历, 比较id是否存在 */
+		var flag = true;
+		$("table tr").each(function(){
+			if(id == $(this).find("td:eq(1)").text()){
+				alert("id已存在!!!");
+				flag = false;
+			}
+		});
+
+		if(!flag){
+			return;
+		}
+
+		//4.将新员工信息添加到员工信息列表中(table)
+		var $td1 = $("<td><input type='checkbox'/></td>");
+		var $td2 = $("<td>"+id+"</td>");
+		var $td3 = $("<td>"+name+"</td>");
+		var $td4 = $("<td>"+email+"</td>");
+		var $td5 = $("<td>"+salary+"</td>");
+
+		var $tr = $("<tr></tr>");
+		$tr.append($td1).append($td2).append($td3).append($td4).append($td5);
+
+		//5.将tr挂载到table上
+		$("table").append($tr);
+	}
+
+	/* --- 删除选中的员工 --- */
+	function delEmp(){
+		//1.获取被选中的员工
+		$(":checked").parents("tr").each(function(){
+			//如果当前行是表头, 不要删除
+			if($(this).find("th").length == 0){
+				$(this).remove();
+			}
+		});
+	}
+
+	/* --- 修改指定id的员工 --- */
+	function updEmp(){
+		//1.获取要修改的员工信息
+		var id = $("#box2").find("input[name='id']").val().trim();
+		var name = $("#box2").find("input[name='name']").val().trim();
+		var email = $("#box2").find("input[name='email']").val().trim();
+		var salary = $("#box2").find("input[name='salary']").val().trim();
+
+		//2.检查员工信息是否符合格式(不能为空)
+		if(id == "" || name == "" || email == "" || salary == ""){
+			alert("修改员工信息不能为空!!!");
+		}
+		//3.检查ID是否存在(必须要存在)
+		var flag = true;
+		$("table tr").each(function(){
+			if(id == $(this).find("td:eq(1)").text()){
+				//4.进行修改
+				//>>修改姓名
+				$(this).find("td:eq(2)").text(name);
+				//>>修改邮箱
+				$(this).find("td:eq(3)").text(email);
+				//>>修改工资
+				$(this).find("td:eq(4)").text(salary);
+				flag = false;
+			}
+		});
+		if(flag){
+			alert("您修改的员工id不存在!!!");
+		}
+	}
+
+	/* 点击全选设置 员工所在的行全选或者全不选 */
+	function checkAll(thisobj){
+		//thisobj --> <input type="checkbox" onclick="checkAll(this)" id="all"/>
+		//获取全选的选中状态
+		var isCheck = $(thisobj).attr("checked");
+
+		//将全选的选中状态 设置给所有员工所在的行的复选框
+		$("input[type='checkbox']").attr("checked", isCheck);
+	}
+</script>
+</head>
+
+<body>
+	<h2>添加新员工</h2>
+	<div id="box1">
+		ID：<input type="text" name="id"/>
+		姓名：<input type="text" name="name"/>
+		邮箱：<input type="text" name="email"/>
+		工资：<input type="text" name="salary"/>
+		<input type="button" onclick="addEmp()" id="add" value="添加"/>
+	</div>
+	<hr/>
+	<table border="1">
+		<tr>
+			<th>
+				<input type="checkbox" onclick="checkAll(this)" id="all"/>
+				<!--全选-->
+			</th>
+			<th>ID</th>
+			<th>姓名</th>
+			<th>邮箱</th>
+			<th>工资</th>
+		</tr>
+		<tr>
+			<td>
+				<input type="checkbox"/>
+			</td>
+			<td>1</td>
+			<td>宋江</td>
+			<td>sj@163.com</td>
+			<td>12000</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="checkbox"/>
+			</td>
+			<td>2</td>
+			<td>武松</td>
+			<td>ws@163.com</td>
+			<td>10500</td>
+		</tr>
+		<tr>
+			<td>
+				<input type="checkbox"/>
+			</td>
+			<td>3</td>
+			<td>孙二娘</td>
+			<td>sen@163.com</td>
+			<td>11000</td>
+		</tr>
+	</table>
+	<h4><a href="#" onclick="delEmp()" id="del">删除选中</a></h2>
+
+	<hr/>
+
+	<div id="box2">
+		ID：<input type="text" name="id"/>
+		姓名：<input type="text" name="name"/>
+		邮箱：<input type="text" name="email"/>
+		工资：<input type="text" name="salary"/>
+		<input type="button" onclick="updEmp()" id="upd" value="修改"/>
+	</div>
+</body>
+</html>
+
+
+
