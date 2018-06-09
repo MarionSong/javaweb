@@ -5,10 +5,10 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Regist Page</title>
-		<link rel="stylesheet" type="text/css" href="/css/style.css" />
+		<link rel="stylesheet" type="text/css" href="css/style.css" />
 	</head>
 	<body>
-		<form action="../web/RegistServlet" method="post">
+		<form action="RegistServlet" method="post">
 			<table>
 				<tr>
 					<td class="alignRight">Username:</td>
