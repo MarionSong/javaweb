@@ -4,9 +4,12 @@
     "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 	<!-- 全局的配置 -->
-	
+	<typeAliases>
+		<!--  <typeAlias type="cn.tedu.mybatis.pojo.User" alias="User"/>  -->
+		<package name="cn.tedu.mybatis.pojo"/>
+	</typeAliases>
 	<!-- 环境 -->
-	<environments default="test">
+	<environments default="test1">
 		<environment id="test">
 			<!-- 配置数据库事务 -->
 			<transactionManager type="JDBC"/>
@@ -17,13 +20,23 @@
 				<property name="password" value="root"/>
 			</dataSource>
 		</environment>
+		<environment id="test1">
+			<!-- 配置数据库事务 -->
+			<transactionManager type="JDBC"/>
+			<dataSource type="POOLED">
+				<property name="driver" value="com.mysql.jdbc.Driver"/>
+				<property name="url" value="jdbc:mysql://localhost:3306/mybatisdb1?characterEncoding=utf8"/>
+				<property name="username" value="root"/>
+				<property name="password" value="root"/>
+			</dataSource>
+		</environment>
 	</environments>
 	
 	
 	<!-- 引入映射文件 -->
 	<mappers>
 		<mapper resource="cn/tedu/mybatis/pojo/UserMapper.xml"/>
-	
+		<mapper resource="cn/tedu/mybatis/pojo/OrderMapper.xml"/>
 	
 	</mappers>
 	

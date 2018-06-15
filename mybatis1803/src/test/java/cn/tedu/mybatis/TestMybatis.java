@@ -59,7 +59,11 @@ public class TestMybatis {
 	public void get() throws IOException {
 		SqlSession session=factory.openSession();
 		String statement="cn.tedu.mybatis.pojo.UserMapper.get";
-		session.selectOne(statement, "夏言");
+		User u=session.selectOne(statement, "夏言");
+		System.out.println(u);
 	}
+	
+	
+	
 	
 }

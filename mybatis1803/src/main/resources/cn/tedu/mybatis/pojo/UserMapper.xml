@@ -3,22 +3,52 @@
 	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.tedu.mybatis.pojo.UserMapper">
-	<select id="find" resultType="cn.tedu.mybatis.pojo.User">
-	select * from user_c
+	<sql id="cols">id,name,age,address</sql>
+	<select id="find" resultType="User" parameterType="User">
+		select <include refid="cols"/> from user_c
+		<where>
+		<if test="id!=null">id=#{id}</if>
+		<if test="name!=null">name=#{name}</if>
+		<if test="address!=null">and address like #{address}</if>
+		</where>
 	</select>
-	<insert id="insert">
-	insert into user_c values ('6','宋铭',20,'吉林');
+	<insert id="insert" parameterType="User">
+	insert into user_c values (#{id},#{name},#{age},#{address});
 	</insert>
-	<update id="update" parameterType="string">
-	update user_c set age=24 where name=#{name}	
+	<update id="update" parameterType="User">
+		update user_c 
+		<set> 
+		<if test="name!=null">name=#{name},</if>
+		<if test="address!=null">address=#{address},</if> 	
+		</set>
+		where id=#{id}
 	</update>
-	<delete id="delete">
-	delete from user_c where id='6'
+	<delete id="delete" parameterType="string">
+		delete from user_c where id in
+		<foreach collection="list" open="(" close=")" separator=","
+			item="id">
+			#{id}
+			</foreach>
 	</delete>
-	<select id="get" parameterMap="map" resultType="cn.tedu.mybatis.pojo.User">
-	select * from user_c where name=#{name}
-	
+	<select id="get" parameterType="string" resultType="User">
+	select <include refid="cols"/> from user_c where name=#{name}
 	</select>
+	<select id="search" parameterType="map" resultType="User">
+	select <include refid="cols"/> from user_c where id=#{id} and name=#{name}
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
