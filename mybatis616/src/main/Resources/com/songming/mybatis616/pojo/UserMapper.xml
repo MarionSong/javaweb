@@ -10,7 +10,7 @@
 		<where>
 			<if test="id!= null">id=#{id}</if>
 			<if test="name!=null">and name=#{name}</if>
-			<if test="address"!=null>and address=#{address}</if>
+
 		</where>
 
 	</select>
@@ -20,7 +20,9 @@
 	insert into user(<include refid="col"/> ) values(#{id},#{name},#{birthday},#{address})
 	</insert>
 
-	
+	<select id="testfind" resultType="user">
+	select <include refid="col"/> from user
+	</select>
 
 
 

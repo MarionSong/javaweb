@@ -2,7 +2,9 @@ package com.songming.mybatis616;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -62,7 +64,18 @@ public class test {
 	}
 	
 	
-	
+	@Test
+	public void testfind() {
+		SqlSession session = factory.openSession();
+		UserMapper mapper = session.getMapper(UserMapper.class);
+		User user=new User();
+		List<User> list=mapper.testfind();
+		for(User u:list) {
+			System.out.println(u);
+		}
+		session.close();
+		
+	}
 	
 	
 }
