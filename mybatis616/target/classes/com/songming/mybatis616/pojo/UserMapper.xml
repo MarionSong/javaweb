@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.songming.mybatis616.pojo.UserMapper">
+	<sql id="col">id,name,birthday,address</sql>
+	<select id="find" parameterType="user" 
+	resultType="user">
+	select <include refid="col"/> from user 
+		<where>
+			<if test="id!= null">id=#{id}</if>
+			<if test="name!=null">and name=#{name}</if>
+
+		</where>
+
+	</select>
+	
+	
+	<insert id="insert" parameterType="user" >
+	insert into user(<include refid="col"/> ) values(#{id},#{name},#{birthday},#{address})
+	</insert>
+
+	<select id="testfind" resultType="user">
+	select <include refid="col"/> from user
+	</select>
+
+
+
+</mapper>	
+
+
+
