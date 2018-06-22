@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+    xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop" 
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+    xsi:schemaLocation="  
+       http://www.springframework.org/schema/beans   
+       http://www.springframework.org/schema/beans/spring-beans-4.3.xsd  
+       http://www.springframework.org/schema/mvc   
+       http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd   
+       http://www.springframework.org/schema/tx   
+       http://www.springframework.org/schema/tx/spring-tx-4.3.xsd   
+       http://www.springframework.org/schema/aop 
+       http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+       http://www.springframework.org/schema/util 
+       http://www.springframework.org/schema/util/spring-util-4.3.xsd
+       http://www.springframework.org/schema/data/jpa 
+       http://www.springframework.org/schema/data/jpa/spring-jpa-1.3.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-4.3.xsd" >
+	<util:properties id= "cfg" location="configs.properties"/>
+	<bean id="openDataSource1" class="beans.OpenDataSource">
+		<property name="driverClassName" value="#{cfg.driver}" />
+		<property name="url" value="#{cfg.url}" />
+		<property name="username" value="#{cfg.username}" />
+		<property name="password" value="#{cfg.password}" />
+	
+	</bean>
+	<bean id="openDataSource2" class="beans.OpenDataSource" >
+		<constructor-arg value="#{cfg.driver}"/>
+		<constructor-arg value="#{cfg.url}"/>
+		<constructor-arg value="#{cfg.username}"/>
+		<constructor-arg value="#{cfg.password}"/>
+		
+	</bean>
+	<import resource="spring-c3p0.xml"/>
+	<import resource="spring-druid.xml"/>
+	
+	<bean id="sysConfigDao" class="beans.dao.impl.SysConfigDaoImpl">
+		<property name="dataSource" ref="druidDataSource"></property>
+	</bean>
+	<!-- <bean id="jdbcTemlate" class="org.springframework.jdbc.core.JdbcTemplate.class">
+		<property name="sysConfigDao" ref="sysConfigDao"></property>
+	</bean> -->
+	<bean id="sysConfigService" class="beans.service.SysConfigServiceImpl">
+		<property name="sysConfigDao" ref="sysConfigDao"></property>
+	</bean>
+	
+	<bean id="sysConfigController" class="beans.controller.SysConfigController">
+		<property name="sysConfigService" ref="sysConfigService"></property>
+	</bean>
+	
+	
+	
+	
+</beans>
