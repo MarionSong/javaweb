@@ -1,0 +1,14 @@
+﻿在Servlet3.0之后允许取消web.xml配置，可以使用注解的方式。
+	首先自己建立一个配置类（AppConfig）继承AbstractAnnotationConfigDispatcherServletInitializer，
+	并重写继承的三个方法。可在getRootConfigClasses方法中配置SpringIOC容器用来装载各类Spring Bean；
+	在getServletConfigClasses中获取各类SpringMVC的URI和控制器的配置关系类，用来生成web上下文；
+	在getServletMapping中配置DispatcherServlet的拦截内容。
+接下来比较重要的是为什么容器会自动加载这个类？
+	首先可以看到在maven依赖中的spring-web.jar包，它的下面有一个META-INF/services文件夹，其中有个
+	javax.servlet.ServletContainerInitializer文件，Tomcat会自动加载 这个文件中的类就是：
+	org.springframework.web.SpringServletContainerInitializer。查看这个类的源码，它实现了
+	ServletContainerInitializer接口，并且它有一个注解@HandlesTypes(WebApplicationInitializer.class)
+	这个注解的意思是加载这个类的所有子类，可以看到WebApplicationInitializer是个接口，查看继承关系它正
+	是我们写的AppConfig文件的父接口，所以SpringServletContainerInitializer调用onStartup方法可以初始化
+	多个容器，最后的使用for循环实现WebApplicationInitializer的onStartup方法，Springmvc就会把类当做一个
+	初始化容器加载进来。
