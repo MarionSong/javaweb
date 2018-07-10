@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jt.sys.dao.SysUserDao">
+
+     <!-- 更新用户自身信息 -->
+     
+     <update id="updateObject" parameterType="com.jt.sys.entity.SysUser">
+          update sys_users
+          <set>
+             <if test="username!=null and username!=''">
+               username=#{username},
+             </if>
+             <if test="password!=null and password!=''">
+               password=#{password},
+               salt=#{salt},
+             </if>
+             <if test="email!=null and email!=''">
+                  email=#{email},
+             </if>
+             <if test="mobile!=null and mobile!=''">
+                mobile=#{mobile},
+             </if>
+             <if test="deptId!=null and deptId!=''">
+                deptId=#{deptId},
+             </if>
+             <if test="modifiedUser!=null and modifiedUser!=''">
+                modifiedUser=#{modifiedUser},
+             </if>
+             modifiedTime=now()
+          </set>
+          where id=#{id}      
+   </update>
+     
+     
+     <select id="findObjectById"
+             resultMap="sysUserResult">
+            select *
+            from sys_users
+            where id=#{id}
+     </select>
+ 
+     <!-- 基于用户名查询用户对象 -->
+     <select id="findUserByUserName"
+             resultType="com.jt.sys.entity.SysUser">
+          select *
+          from sys_users
+          where username=#{username}        
+     </select>
+     <insert id="insertObject"
+             parameterType="com.jt.sys.entity.SysUser"
+             useGeneratedKeys="true"
+             keyProperty="id">
+          insert into sys_users
+          (username,password,salt,email,mobile,valid,deptId,
+           createdTime,modifiedTime,createdUser,modifiedUser)
+           values
+          (#{username},#{password},#{salt},
+           #{email},#{mobile},#{valid},#{deptId},
+           now(),now(),#{createdUser},#{modifiedUser}
+          )
+     </insert>
+
+    <!-- 禁用或启用用户对象 -->
+    <update id="validById">
+        update sys_users
+        set 
+          valid=#{valid},
+          modifiedTime=now(),
+          modifiedUser=#{modifiedUser}
+        where id=#{id}
+    </update>
+
+
+    <resultMap id="sysUserResult" 
+               type="com.jt.sys.vo.SysUserDeptResult">
+         <association 
+           property="sysDept"
+           column="deptId"
+           select="com.jt.sys.dao.SysDeptDao.findById"/>
+    </resultMap>
+    
+    <select id="findPageObjects"
+            resultMap="sysUserResult">
+          select * 
+          from sys_users
+          <include refid="queryWhereId"/>
+          limit #{startIndex},#{pageSize}
+    </select>
+    <select id="getRowCount"
+            resultType="int">
+         select count(*)
+         from sys_users
+         <include refid="queryWhereId"/>
+    </select>
+    <sql id="queryWhereId">
+        <where>
+          <if test="username!=null and username!=''">
+             username like concat("%",#{username},"%")
+          </if>
+        </where>
+    </sql>
+    
+    <select id="getUserCountByDeptId"
+            resultType="int">
+         select count(*)
+         from sys_users
+         where deptId=#{deptId}        
+    </select>
+    
+</mapper>
+
+
+
