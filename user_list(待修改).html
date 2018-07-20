@@ -1,0 +1,272 @@
+﻿<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">用户管理</h3>
+
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							class="form-control pull-right" placeholder="用户名">
+
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default btn-search">
+								<i class="fa fa-search"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-add">添加</button>
+							<button type="button" class="btn btn-default btn-update">修改</button>
+							<button type="button" class="btn btn-default downloadexcel">导出Excel</button>
+							<button type="button" class="btn btn-default" id="downloadpdf">导出PDF</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding" id="topdf">
+				<table id="mytable1" class="table table-hover">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>用户名</th>
+							<th>部门</th>
+							<th>邮箱</th>
+							<th>手机号</th>
+							<th>状态</th>
+							<th>创建时间</th>
+							<th>修改时间</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="tbodyId"></tbody>
+				</table>
+				
+			</div>
+			<div id="pageId" class="box-footer clearfix"></div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<!--HTML表格转换为Excel文档  -->
+<script src="bower_components/jquery/dist/jquery.min.js"></script>
+<script src="bower_components/jquery/dist/jquery.table2excel.js"></script>
+<!-- HTML表格转换为pdf文档 -->
+<script src="bower_components/jquery/dist/jspdf.min.js"></script>
+<!-- 解决中文乱码插件 -->
+<script src="bower_components/jquery/dist/html2canvas.min.js"></script>
+<script src="bower_components/jquery/dist/canvg2.js"></script>
+<script type="text/javascript">
+	$(document).ready(
+			function() {
+				$("#pageId").load("doPageUI.do", function() {
+					doGetObjects();
+				});
+				$(".input-group-btn")
+						.on("click", ".btn-search", doQueryObjects).on("click",
+								".btn-add,.btn-update", doLoadEditUI)
+				$("tbody").on("click", ".btn-valid", doValidById);
+				$(".downloadexcel").click(function() {
+					$("#mytable1").table2excel({
+						exclude : ".noExl", //过滤位置的 css 类名
+						filename : "用户信息表" + new Date().getTime() + ".xls", //文件名称
+						name : "Excel Document Name.xlsx",
+						exclude_img : true,
+						exclude_links : true,
+						exclude_inputs : true
+
+					})
+				});
+					$("#downloadpdf").click(function () {
+			            var targetDom = $("#topdf");
+			            //把需要导出的pdf内容clone一份，这样对它进行转换、微调等操作时才不会影响原来界面
+			            var copyDom = targetDom.clone();
+			            //新的div宽高跟原来一样，高度设置成自适应，这样才能完整显示节点中的所有内容（比如说表格滚动条中的内容）
+			            copyDom.width(targetDom.width() + "px");
+			            copyDom.height(targetDom.height() + "px");
+
+			            $('body').append(copyDom);//ps:这里一定要先把copyDom append到body下，然后再进行后续的glyphicons2canvas处理，不然会导致图标为空
+
+			           // svg2canvas(copyDom);
+			            html2canvas(copyDom, {
+			                onrendered: function (canvas) {
+			                    var imgData = canvas.toDataURL('image/jpeg');
+			                    var img = new Image();
+			                    img.src = imgData;
+			                    //根据图片的尺寸设置pdf的规格，要在图片加载成功时执行，之所以要*0.225是因为比例问题
+			                    img.onload = function () {
+			                        //此处需要注意，pdf横置和竖置两个属性，需要根据宽高的比例来调整，不然会出现显示不完全的问题
+			                        if (this.width > this.height) {
+			                            var doc = new jsPDF('l', 'mm', [this.width * 0.225, this.height * 0.225]);
+			                        } else {
+			                            var doc = new jsPDF('p', 'mm', [this.width * 0.225, this.height * 0.225]);
+			                        }
+			             
+			                        doc.addImage(imgData, 'jpeg', 0, 0, this.width * 0.225, this.height * 0.225);
+			                        //根据下载保存成不同的文件名
+			                        doc.save('pdf_' + new Date().getTime() + '.pdf');
+			                    };
+			                    //删除复制出来的div
+			                    copyDom.remove();
+			                },
+			                background: "#fff",
+			                //这里给生成的图片默认背景，不然的话，如果你的html根节点没设置背景的话，会用黑色填充。
+			                allowTaint: true //避免一些不识别的图片干扰，默认为false，遇到不识别的图片干扰则会停止处理html2canvas
+			            });
+			        }						      													
+				
+				); 
+						
+
+			});
+	
+
+	function doLoadEditUI() {
+		//1.判定点击的对象
+		var title;
+		if ($(this).hasClass("btn-add")) {
+			title = "添加用户";
+			doLoadPage(title);
+		} else if ($(this).hasClass("btn-update")) {
+			title = "修改用户";
+			var id = doGetCheckedId();
+			console.log("id=" + id)
+			if (!id) {
+				alert("请先选择");
+				return;
+			}
+			//基于id进行查询并加载编辑页面
+			doFindObjectById(id, title);
+		}
+	}
+	function doFindObjectById(id, title) {
+		//1.params
+		var params = {
+			"id" : id
+		};
+		//2.url
+		var url = "user/doFindObjectById.do";
+		//3.ajax request
+		$.getJSON(url, params, function(result) {//JsonResult
+			if (result.state == 1) {
+				$("#mainContentId").data("rowData", result.data);
+				doLoadPage(title);
+			} else {
+				alert(result.message);
+			}
+		});
+	}
+
+	function doGetCheckedId() {
+		return $("tbody input[name='radioId']:checked").val();
+	}
+	function doLoadPage(title) {
+		var url = "user/doUserEditUI.do"
+		$("#mainContentId").load(url, function() {
+			$(".box-title").html(title);
+		})
+	}
+	function doValidById() {
+		var url = "user/doValidById.do";
+		var rowData = $(this).parents("tr").data("rowData");
+		var params = {
+			"id" : rowData.id,
+			"valid" : rowData.valid ? 0 : 1
+		};
+		var btn = $(this);
+		$.post(url, params, function(result) {
+			if (result.state == 1) {
+				alert(result.message);
+				//doGetObjects();//重新查询刷新
+				//优化方式实现
+				doEditRow(btn, rowData.valid);
+			} else {
+				alert(result.message);
+			}
+		})
+	}
+	function doEditRow(obj, valid) {
+		//1.修改按钮上的内容
+		$(obj).html(valid ? "启用" : "禁用");
+		//2.修改tr中第5个td中的内容(查询API文档)
+		var tr = $(obj).parents("tr");
+		tr.find("td:eq(5)").text(valid ? "禁用" : "启用");
+		//3.获取当前行tr对象，然后重新绑定新的值
+		var rowData = $(obj).parents("tr").data("rowData")
+		rowData.valid = valid ? 0 : 1;
+		tr.data("rowData", rowData);
+	}
+	//处理查询按钮事件
+	function doQueryObjects() {
+		$("#pageId").data("pageCurrent", 1);
+		doGetObjects();
+	}
+	//页面加载完成异步加载当前页数据
+	function doGetObjects() {
+		var url = "user/doFindPageObjects.do";
+		var pageCurrent = $("#pageId").data("pageCurrent");
+		if (!pageCurrent)
+			pageCurrent = 1;
+		var params = {
+			"pageCurrent" : pageCurrent
+		}
+		params.username = $("#searchNameId").val().trim();
+		console.log(params);
+		$.getJSON(url, params, function(result) {
+			console.log(result);
+			doHandleResponseResult(result);
+		});
+	}
+	function doHandleResponseResult(result) {
+		if (result.state == 1) {
+			doSetTableBodyRows(result.data.records);
+			doSetPagination(result.data);
+		} else {
+			alert(result.message);
+		}
+	}
+	//通过服务端返回的数据初始化页面
+	function doSetTableBodyRows(data) {
+		//1.获取tbody对象，并清空内容
+		var tBody = $("#tbodyId");
+		tBody.empty();
+		//2.迭代data内容将数据追加到tbody中
+		for ( var i in data) {
+			var tr = $("<tr></tr>");
+			tr.data("rowData", data[i]);
+			var tds = doCreateTds(data[i]);
+			tr.append(tds);
+			tBody.append(tr);
+		}
+	}
+	function doCreateTds(row) {
+		var tds = "<td><input type='radio' name='radioId' value='"+row.id+"' ></td>"
+				+ "<td>"
+				+ row.username
+				+ "</td>"
+				+ "<td>"
+				+ row.sysDept.name
+				+ "</td>"
+				+ "<td>"
+				+ row.email
+				+ "</td>"
+				+ "<td>"
+				+ row.mobile
+				+ "</td>"
+				+ "<td>"
+				+ (row.valid ? "启用" : "禁用")
+				+ "</td>"
+				+ "<td>"
+				+ row.createdTime
+				+ "</td>"
+				+ "<td>"
+				+ row.modifiedTime
+				+ "</td>"
+				+ "<td><button type='button' class='btn btn-default btn-valid'>"
+				+ (row.valid ? "禁用" : "启用") + "</button></td>";
+		return tds;
+	}
+</script>
+
+
+
+
