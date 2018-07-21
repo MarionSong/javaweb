@@ -23,4 +23,7 @@ public interface ItemMapper extends SysMapper<Item>{
 	
 	@Select("select * from tb_item order by updated desc limit #{start},#{rows}")
 	List<Item> findItemByPage(@Param("start")int start,@Param("rows")int rows);
+	
+	
+	void updateStatus(@Param("status")int status, @Param("ids")Long[] ids);
 }

@@ -1,5 +1,6 @@
 package com.jt.manage.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,34 @@ public class ItemServiceImpl extends BaseService<Item> implements ItemService{
 		EasyUIResult result=new EasyUIResult(total,itemList);
 		
 		return result;
+	}
+
+	@Override
+	public void saveItem(Item item) {
+		//表示商品上架
+		item.setStatus(1);
+		item.setCreated(new Date());
+		item.setUpdated(item.getCreated());
+		itemMapper.insert(item);
+	}
+
+	@Override
+	public void updateItem(Item item) {
+		item.setUpdated(new Date());
+		itemMapper.updateByPrimaryKeySelective(item);
+		
+	}
+
+	@Override
+	public void deleteItem(Long[] ids) {
+		itemMapper.deleteByIDS(ids);
+		
+	}
+
+	@Override
+	public void updateStatus(int status, Long[] ids) {
+		itemMapper.updateStatus(status,ids);
+		
 	}
 	
 	

@@ -7,4 +7,10 @@
 	<select id="findItemAll" resultType="Item">
 	select * from tb_item order by updated desc
 	</select>
+	
+	<update id="updateStatus" >
+	update tb_item set status=#{status},updated=now() where id in (
+	<foreach collection="ids" item="id" separator=",">#{id}</foreach>
+	)
+	</update>
 </mapper>  
