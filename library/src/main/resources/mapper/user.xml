@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.marion.library.mapper.UserMapper">
+    <resultMap id="userMap" type="Users">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="password" column="password"/>
+        <collection property="roles" ofType="Roles">
+            <result property="name" column="name"/>
+        </collection>
+    </resultMap>
+
+
+    <select id="findByName" parameterType="string" resultMap="userMap">
+        select u.id,u.username,u.password,r.name
+        from users u
+        left join user_role ur on u.id=ur.user_id
+        left join roles r on ur.role_id=r.id
+        where username=#{username}
+    </select>
+</mapper>
